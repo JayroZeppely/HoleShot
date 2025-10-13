@@ -1,49 +1,68 @@
 package helloandroid.ut3.holeshot;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log; // <-- Assurez-vous que Log est importé
-import android.view.Window;
-import android.view.WindowManager;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Clé constante pour le compteur de parties. Utiliser une constante évite les fautes de frappe.
     private static final String KEY_GAMES_PLAYED = "total_games_played";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // On charge le layout du menu
+        setContentView(R.layout.activity_main);
 
-        // --- Configuration du mode plein écran ---
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // Récupération des vues (bouton et label)
+        TextView gamesPlayedLabel = findViewById(R.id.games_played_label);
+        Button startGameButton = findViewById(R.id.start_game_button);
 
         // --- GESTION DU COMPTEUR DE PARTIES AVEC SHARED PREFERENCES ---
+        SharedPreferences sharedPref = getSharedPreferences("HoleShotPrefs", Context.MODE_PRIVATE);
 
-        // 1. Obtenir une instance de SharedPreferences pour cette activité
-        // getPreferences est privé à l'activité, ce qui est parfait ici.
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-
-        // 2. Lire le nombre de parties déjà jouées. Valeur par défaut : 0.
         int gamesPlayed = sharedPref.getInt(KEY_GAMES_PLAYED, 0);
+        Log.d("MainActivity", "Nombre de parties déjà jouées : " + gamesPlayed);
 
-        // 3. Incrémenter le compteur
-        gamesPlayed++;
+        // Mettre à jour le texte du label
+        String labelText = "Parties jouées : " + gamesPlayed;
+        gamesPlayedLabel.setText(labelText);
 
-        // 4. Afficher dans les logs pour le débogage
-        Log.d("MainActivity", "Cette session est la partie numéro : " + gamesPlayed);
+        // --- GESTION DU CLIC SUR LE BOUTON ---
+        startGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Incrémenter le compteur UNIQUEMENT quand on lance une partie
+                int newGamesPlayed = gamesPlayed + 1;
 
-        // 5. Sauvegarder la nouvelle valeur
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(KEY_GAMES_PLAYED, gamesPlayed);
-        editor.apply(); // Utiliser apply() pour une sauvegarde asynchrone
+                // Sauvegarder la nouvelle valeur
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt(KEY_GAMES_PLAYED, newGamesPlayed);
+                editor.apply();
 
-        // --- Lancement de la GameView ---
-        setContentView(new GameView(this, null));
+                // Lancer la GameActivity
+                Intent intent = new Intent(MainActivity.this, ModeActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Optionnel : Mettre à jour le compteur au cas où on revient sur le menu
+        // après avoir fini une partie.
+        SharedPreferences sharedPref = getSharedPreferences("HoleShotPrefs", Context.MODE_PRIVATE);
+        int gamesPlayed = sharedPref.getInt(KEY_GAMES_PLAYED, 0);
+        TextView gamesPlayedLabel = findViewById(R.id.games_played_label);
+        String labelText = "Parties jouées : " + gamesPlayed;
+        gamesPlayedLabel.setText(labelText);
     }
 }
