@@ -1,15 +1,38 @@
+# Fichiers spécifiques à IntelliJ / Android Studio
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches/
+.idea/modules.xml
+.idea/navEditor.xml
+
+# Fichiers système
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Fichiers de configuration locaux
 local.properties
+
+# Native builds et caches externes
+.externalNativeBuild/
+.cxx/
+
+# Captures d’écran et artefacts divers
+captures/
+
+# Logs
+*.log
+
+# Autres (optionnel, selon besoins)
+# .signing/
+# gen/
+# bin/
