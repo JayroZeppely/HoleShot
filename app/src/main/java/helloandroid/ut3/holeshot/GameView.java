@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Rect; // <-- Importer Rect
+
 import android.os.Handler; // <-- Importer Handler
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
@@ -13,49 +13,49 @@ import android.view.SurfaceView;
 
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList; // <-- Importer ArrayList
-import java.util.List; // <-- Importer List
 import java.util.Random; // <-- Importer Random
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private final GameThread thread;
     private final Handler gameHandler = new Handler(); // Handler pour le postDelayed
-
     private Point ballPosition;
-
     private Point holePosition;
     private final Random random = new Random(); // Pour générer des positions aléatoires
 
-    public GameView(Context context) {
+    private Paint ballPaint = new Paint();
+    private Paint holePaint = new Paint();
+    private Paint backgroundPaint = new Paint();
+
+    // Constructeur
+    public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context);
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
-    }
 
-    // Le Runnable qui sera appelé toutes les secondes
-    private final Runnable setTimer = new Runnable() {
-        @Override
-        public void run() {
-            gameHandler.postDelayed(this, 100);
-        }
-    };
+        ballPaint.setColor(Color.rgb(120, 100, 110));
+        holePaint.setColor(Color.BLACK);
+        backgroundPaint.setColor(Color.WHITE);
+
+        ballPosition = new Point();
+        holePosition = new Point();
+    }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        ballPosition.x = getWidth() / 2;
+        ballPosition.y = getHeight() / 2;
+
+        generateNewHolePosition();
+
         thread.setRunning(true);
         thread.start();
 
-        // Démarrer le timer pour ajouter des blocs
-        gameHandler.post(setTimer);
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        // Arrêter le timer
-        gameHandler.removeCallbacks(setTimer);
-
         // Arrêter le thread de rendu
         boolean retry = true;
         while (retry) {
@@ -69,6 +69,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    private void generateNewHolePosition() {
+        if (getWidth() > 0 && getHeight() > 0) {
+            holePosition.x = random.nextInt(getWidth() - 50);
+            holePosition.y = random.nextInt(getHeight() - 50);
+        }
+    }
+
     public void update() {
     }
 
@@ -79,6 +86,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
+            canvas.drawPaint(backgroundPaint);
+            canvas.drawCircle(ballPosition.x, ballPosition.y, 30, ballPaint);
+            canvas.drawCircle(holePosition.x, holePosition.y, 50, holePaint);
         }
     }
 
