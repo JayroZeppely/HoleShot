@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "414966850645",
+    "project_id": "holeshot-14758",
+    "storage_bucket": "holeshot-14758.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414966850645:android:1d61728272cfb6f09520dc",
+        "android_client_info": {
+          "package_name": "helloandroid.ut3.holeshot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnazld4HznwNm8mDLjZr9spNPLkcLoNmY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
