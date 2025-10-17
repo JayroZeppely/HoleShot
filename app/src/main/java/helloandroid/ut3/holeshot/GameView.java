@@ -13,7 +13,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler; // <-- Importer Handler
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -22,11 +22,13 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random; // <-- Importer Random
+import java.util.Random;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback, SensorEventListener {
-
     private final GameThread thread;
+
+    private GameEventListener gameEventListener;
+
     private final Handler gameHandler = new Handler(); // Handler pour le postDelayed
     private Point ballPosition;
     private Point holePosition;
@@ -47,9 +49,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
     private int score;
 
+    public interface GameEventListener {
+        void onGameOver();
+        void onScoreChanged(int score);
+    }
+
     // Constructeur
     public GameView(Context context, @Nullable AttributeSet attrs) {
-        super(context);
+        super(context, attrs);
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
@@ -98,6 +105,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         }
     }
 
+    void setGameEventListener(GameEventListener listener) {
+        this.gameEventListener = listener;
+    }
+
     private void generateNewHolePosition() {
         if (getWidth() > 0 && getHeight() > 0) {
             holePosition.x = random.nextInt(getWidth() - 50);
@@ -125,7 +136,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
         //Gestion collisions
         for (RectF obstacle : obstacles) {
-            if (RectF.intersects(obstacle, new RectF(ballPosition.x - 30, ballPosition.y - 30, ballPosition.x + 30, ballPosition.y))) {
+            if (RectF.intersects(obstacle, new RectF(ballPosition.x - 30, ballPosition.y - 30, ballPosition.x + 30, ballPosition.y + 30))) {
                 ballPosition.x = lastBallX;
                 ballPosition.y = lastBallY;
                 break;
@@ -143,6 +154,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         if (Math.abs(ballPosition.x - holePosition.x) < 30 && Math.abs(ballPosition.y - holePosition.y) < 30) {
             generateNewHolePosition();
             score += 1;
+            if (gameEventListener != null) {
+                gameEventListener.onScoreChanged(score);
+            }
+
             if (score % 5 == 0) {
                 generateObstacles();
             }
@@ -190,4 +205,5 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
+
 }
