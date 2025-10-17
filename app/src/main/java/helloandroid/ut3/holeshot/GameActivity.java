@@ -47,7 +47,7 @@ public class GameActivity extends AppCompatActivity {
                 timeText.setText(String.valueOf(timer));
                 gameHandler.postDelayed(this, 1000);
             } else {
-                Intent intent = new Intent(GameActivity.this, MainActivity.class);
+                Intent intent = new Intent(GameActivity.this, ResultActivity.class);
                 startActivity(intent);
             }
         }

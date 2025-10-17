@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
         // Récupération des vues (bouton et label)
         TextView gamesPlayedLabel = findViewById(R.id.games_played_label);
         Button startGameButton = findViewById(R.id.start_game_button);
+        Button btnHisto = findViewById(R.id.btn_histo);
+
 
         // --- GESTION DU COMPTEUR DE PARTIES AVEC SHARED PREFERENCES ---
         SharedPreferences sharedPref = getSharedPreferences("HoleShotPrefs", Context.MODE_PRIVATE);
@@ -49,6 +51,15 @@ public class MainActivity extends AppCompatActivity {
 
                 // Lancer la GameActivity
                 Intent intent = new Intent(MainActivity.this, ModeActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnHisto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Lancer la GameActivity
+                Intent intent = new Intent(MainActivity.this, HistoriqueActivity.class);
                 startActivity(intent);
             }
         });
