@@ -16,12 +16,11 @@ import androidx.appcompat.app.AppCompatActivity;
 public class GameActivity extends AppCompatActivity implements GameView.GameEventListener {
     int timer;
     private Handler gameHandler;
-
     private TextView timeText;
-
     private TextView scoreText;
-
     private int score = 0;
+
+    private GameView gameView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +40,7 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
         timeText.setText(String.valueOf(timer));
         scoreText = findViewById(R.id.textScore);
         scoreText.setText("Score : " + score);
-        GameView gameView = findViewById(R.id.game_view);
+        gameView = findViewById(R.id.gameView);
         if (gameView != null) {
             gameView.setGameEventListener(this);
         }

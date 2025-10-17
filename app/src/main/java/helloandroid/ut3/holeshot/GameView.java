@@ -13,7 +13,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler;
+import android.os.Handler; // <-- Importer Handler
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,7 +29,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
     private GameEventListener gameEventListener;
 
-    private final Handler gameHandler = new Handler(); // Handler pour le postDelayed
+    private final Handler gameHandler = new Handler();
     private Point ballPosition;
     private Point holePosition;
     private final Random random = new Random(); // Pour générer des positions aléatoires
@@ -136,7 +136,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
         //Gestion collisions
         for (RectF obstacle : obstacles) {
-            if (RectF.intersects(obstacle, new RectF(ballPosition.x - 30, ballPosition.y - 30, ballPosition.x + 30, ballPosition.y + 30))) {
+            if (RectF.intersects(obstacle, new RectF(ballPosition.x - 30, ballPosition.y - 30, ballPosition.x + 30, ballPosition.y))) {
                 ballPosition.x = lastBallX;
                 ballPosition.y = lastBallY;
                 break;
