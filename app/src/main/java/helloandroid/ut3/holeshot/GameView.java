@@ -49,9 +49,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
     private int score;
 
+    private boolean isEndless = false;
+
     public interface GameEventListener {
         void onGameOver();
         void onScoreChanged(int score);
+
+        void resetTimer();
     }
 
     // Constructeur
@@ -156,6 +160,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
             score += 1;
             if (gameEventListener != null) {
                 gameEventListener.onScoreChanged(score);
+                if (isEndless) {
+                    gameEventListener.resetTimer();
+                }
             }
 
             if (score % 5 == 0) {
@@ -206,4 +213,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 
+    public void setEndlessMode(boolean endless) {
+        this.isEndless = endless;
+    }
 }

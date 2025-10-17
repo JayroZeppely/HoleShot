@@ -15,7 +15,7 @@
         android:layout_marginTop="156dp"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.51"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Nombre de parties jouées : 42" />
@@ -25,11 +25,10 @@
         android:layout_width="220dp"
         android:layout_height="65dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="224dp"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="228dp"
         android:text="Lancer le jeu"
         app:cornerRadius="10dp"
-        app:layout_constraintEnd_toStartOf="@+id/btn_histo"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,31 +36,30 @@
         android:id="@+id/btn_histo"
         android:layout_width="220dp"
         android:layout_height="65dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="224dp"
+        android:layout_marginTop="228dp"
+        android:layout_marginEnd="144dp"
         android:backgroundTint="#11AD36"
         android:text="Consulter l'historique"
         app:cornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/start_game_button"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="serif-monospace"
         android:text="HoleShot"
         android:textAlignment="center"
+        android:textColor="#0D74C5"
         android:textSize="56sp"
-        android:textColor="#2196F3"
-        android:fontFamily="serif-monospace"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.15" />
+        app:layout_constraintVertical_bias="0.094" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

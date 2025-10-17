@@ -19,6 +19,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class ModeActivity extends AppCompatActivity {
     public static final String TIMER_DUREE = "duree";
+    public static final String MODE_ENDLESS = "mode";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,8 @@ public class ModeActivity extends AppCompatActivity {
         Button btn30 = findViewById(R.id.btn_30);
         Button btn45 = findViewById(R.id.btn_45);
         Button btn60 = findViewById(R.id.btn_60);
+        Button btnEndless = findViewById(R.id.btn_endless);
+
 
         btn30.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +68,15 @@ public class ModeActivity extends AppCompatActivity {
             }
         });
 
-
+        btnEndless.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Lancer la GameActivity
+                Intent intent = new Intent(ModeActivity.this, GameActivity.class);
+                intent.putExtra(TIMER_DUREE, 5);
+                intent.putExtra(MODE_ENDLESS, true);
+                startActivity(intent);
+            }
+        });
     }
 }
