@@ -49,7 +49,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
     private int score;
 
-    private boolean isEndless = false;
+    private int multiplicateur = 0;
+
+    private String mode;
 
     public interface GameEventListener {
         void onGameOver();
@@ -157,15 +159,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         // --- Quand la balle entre dans le trou ---
         if (Math.abs(ballPosition.x - holePosition.x) < 30 && Math.abs(ballPosition.y - holePosition.y) < 30) {
             generateNewHolePosition();
-            score += 1;
             if (gameEventListener != null) {
-                gameEventListener.onScoreChanged(score);
-                if (isEndless) {
-                    gameEventListener.resetTimer();
+                multiplicateur += 1;
+                switch (mode) {
+                    case "30s":
+                        score = 500 * multiplicateur;
+                        break;
+                    case "45s":
+                        score = 250 * multiplicateur;
+                        break;
+                    case "60s":
+                        score = 100 * multiplicateur;
+                        break;
+                    case "endless":
+                        score = 100 * multiplicateur;
+                        gameEventListener.resetTimer();
+                        break;
                 }
+                gameEventListener.onScoreChanged(score);
             }
-
-            if (score % 5 == 0) {
+            if (multiplicateur % 5 == 0) {
                 generateObstacles();
             }
         }
@@ -213,7 +226,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 
-    public void setEndlessMode(boolean endless) {
-        this.isEndless = endless;
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 }

@@ -19,7 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class ModeActivity extends AppCompatActivity {
     public static final String TIMER_DUREE = "duree";
-    public static final String MODE_ENDLESS = "mode";
+    public static final String MODES = "mode";
 
 
     @Override
@@ -44,6 +44,7 @@ public class ModeActivity extends AppCompatActivity {
                 // Lancer la GameActivity
                 Intent intent = new Intent(ModeActivity.this, GameActivity.class);
                 intent.putExtra(TIMER_DUREE, 30);
+                intent.putExtra(MODES, "30s");
                 startActivity(intent);
             }
         });
@@ -54,6 +55,7 @@ public class ModeActivity extends AppCompatActivity {
                 // Lancer la GameActivity
                 Intent intent = new Intent(ModeActivity.this, GameActivity.class);
                 intent.putExtra(TIMER_DUREE, 45);
+                intent.putExtra(MODES, "45s");
                 startActivity(intent);
             }
         });
@@ -64,6 +66,7 @@ public class ModeActivity extends AppCompatActivity {
                 // Lancer la GameActivity
                 Intent intent = new Intent(ModeActivity.this, GameActivity.class);
                 intent.putExtra(TIMER_DUREE, 60);
+                intent.putExtra(MODES, "60s");
                 startActivity(intent);
             }
         });
@@ -74,7 +77,7 @@ public class ModeActivity extends AppCompatActivity {
                 // Lancer la GameActivity
                 Intent intent = new Intent(ModeActivity.this, GameActivity.class);
                 intent.putExtra(TIMER_DUREE, 5);
-                intent.putExtra(MODE_ENDLESS, true);
+                intent.putExtra(MODES, "endless");
                 startActivity(intent);
             }
         });

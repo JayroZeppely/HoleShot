@@ -1,6 +1,6 @@
 package helloandroid.ut3.holeshot;
 
-import static helloandroid.ut3.holeshot.ModeActivity.MODE_ENDLESS;
+import static helloandroid.ut3.holeshot.ModeActivity.MODES;
 import static helloandroid.ut3.holeshot.ModeActivity.TIMER_DUREE;
 
 import android.content.Intent;
@@ -22,7 +22,7 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
     private TextView scoreText;
     private int score = 0;
 
-    private boolean endless = false;
+    private String mode;
 
     private GameView gameView;
 
@@ -31,9 +31,8 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         timer = intent.getIntExtra(TIMER_DUREE, 5);
-        endless = intent.getBooleanExtra(MODE_ENDLESS, false);
+        mode = intent.getStringExtra(MODES);
 
-        // --- Configuration du mode plein écran ---
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -45,8 +44,6 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
             }
         });
 
-        // On affiche directement notre GameView, qui contient toute la logique du jeu
-        // Note : On pourrait aussi utiliser un layout XML si on voulait superposer des éléments
         setContentView(R.layout.activity_game);
         timeText = findViewById(R.id.textTimer);
         timeText.setText(String.valueOf(timer));
@@ -55,7 +52,7 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
         gameView = findViewById(R.id.gameView);
         if (gameView != null) {
             gameView.setGameEventListener(this);
-            gameView.setEndlessMode(endless);
+            gameView.setMode(mode);
         }
         gameHandler = new Handler(Looper.getMainLooper());
         gameHandler.postDelayed(setTimer,1000);
