@@ -23,17 +23,18 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import android.graphics.Bitmap; // <-- Importez Bitmap
+import android.graphics.BitmapFactory; // <-- Importez BitmapFactory
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback, SensorEventListener {
     private final GameThread thread;
-
     private GameEventListener gameEventListener;
-
     private final Handler gameHandler = new Handler();
     private Point ballPosition;
     private Point holePosition;
     private final Random random = new Random(); // Pour générer des positions aléatoires
 
+    private int holeRadius = 30;
     private Paint ballPaint = new Paint();
     private Paint holePaint = new Paint();
     private Paint backgroundPaint = new Paint();
@@ -48,6 +49,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     private List<RectF> obstacles = new ArrayList<>();
 
     private int score;
+
+    private Bitmap holeSprite;
+    private Bitmap scaledHoleSprite;   // Pour l'affichage
 
     private int multiplicateur = 0;
 
@@ -71,6 +75,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         holePaint.setColor(Color.BLACK);
         backgroundPaint.setColor(Color.WHITE);
         obstaclePaint.setColor(Color.RED);
+
+        // --- DÉBUT MODIFICATIONS ---
+        // On charge notre ressource "drawable" dans le Bitmap
+        holeSprite = BitmapFactory.decodeResource(getResources(), R.drawable.hole);
+        // On redimensionne le sprite pour qu'il corresponde à notre rayon
+        // Redimensionnez toujours à partir de l'original !
+        scaledHoleSprite = Bitmap.createScaledBitmap(holeSprite, holeRadius * 2, holeRadius * 2, false);
 
         ballPosition = new Point();
         holePosition = new Point();
@@ -119,6 +130,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         if (getWidth() > 0 && getHeight() > 0) {
             holePosition.x = random.nextInt(getWidth() - 50);
             holePosition.y = random.nextInt(getHeight() - 50);
+            scaledHoleSprite = Bitmap.createScaledBitmap(holeSprite, holeRadius * 2, holeRadius * 2, false);
         }
     }
 
@@ -157,7 +169,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         if (ballPosition.y > getHeight() - ballRadius) ballPosition.y = getHeight() - ballRadius;
 
         // --- Quand la balle entre dans le trou ---
-        if (Math.abs(ballPosition.x - holePosition.x) < 30 && Math.abs(ballPosition.y - holePosition.y) < 30) {
+        if (Math.abs(ballPosition.x - holePosition.x) < holeRadius && Math.abs(ballPosition.y - holePosition.y) < holeRadius) {
+            int baseRadius = 40;
+            int variation = 30;
+            holeRadius = baseRadius + random.nextInt(variation);
             generateNewHolePosition();
             if (gameEventListener != null) {
                 multiplicateur += 1;
@@ -193,7 +208,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         if (canvas != null) {
             canvas.drawPaint(backgroundPaint);
             canvas.drawCircle(ballPosition.x, ballPosition.y, 30, ballPaint);
-            canvas.drawCircle(holePosition.x, holePosition.y, 50, holePaint);
+            //.drawCircle(holePosition.x, holePosition.y, 50, holePaint);
+            if (holeSprite != null) {
+                canvas.drawBitmap(scaledHoleSprite,
+                        holePosition.x - holeRadius, // Coordonnée X du coin supérieur gauche
+                        holePosition.y - holeRadius, // Coordonnée Y du coin supérieur gauche
+                        null); // Pas besoin de Paint pour un bitmap
+            }
+            // --- FIN MODIFICATIONS ---
+
             for (RectF obstacle : obstacles) {
                 canvas.drawRect(obstacle, obstaclePaint);
             }
