@@ -13,7 +13,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler; // <-- Importer Handler
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -23,8 +23,8 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import android.graphics.Bitmap; // <-- Importez Bitmap
-import android.graphics.BitmapFactory; // <-- Importez BitmapFactory
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback, SensorEventListener {
     private final GameThread thread;
@@ -49,6 +49,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     private List<RectF> obstacles = new ArrayList<>();
 
     private int score;
+
+    private int endlessPoint = 100;
 
     private Bitmap holeSprite;
     private Bitmap scaledHoleSprite;   // Pour l'affichage
@@ -76,8 +78,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         backgroundPaint.setColor(Color.WHITE);
         obstaclePaint.setColor(Color.RED);
 
-        // --- DÉBUT MODIFICATIONS ---
-        // On charge notre ressource "drawable" dans le Bitmap
         holeSprite = BitmapFactory.decodeResource(getResources(), R.drawable.hole);
         // On redimensionne le sprite pour qu'il corresponde à notre rayon
         // Redimensionnez toujours à partir de l'original !
@@ -127,20 +127,91 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     }
 
     private void generateNewHolePosition() {
-        if (getWidth() > 0 && getHeight() > 0) {
-            holePosition.x = random.nextInt(getWidth() - 50);
-            holePosition.y = random.nextInt(getHeight() - 50);
-            scaledHoleSprite = Bitmap.createScaledBitmap(holeSprite, holeRadius * 2, holeRadius * 2, false);
+        if (getWidth() <= 0 || getHeight() <= 0) {
+            return;
         }
+
+        boolean positionIsInvalid;
+        int maxAttempts = 50; // Pour éviter une boucle infinie si l'écran est plein
+        int attempts = 0;
+
+        do {
+            positionIsInvalid = false;
+            int testX = random.nextInt(getWidth() - (holeRadius * 2)) + holeRadius;
+            int testY = random.nextInt(getHeight() - (holeRadius * 2)) + holeRadius;
+
+            RectF holeBounds = new RectF(testX - holeRadius, testY - holeRadius, testX + holeRadius, testY + holeRadius);
+
+            // Vérifier la collision avec chaque obstacle existant
+            for (RectF obstacle : obstacles) {
+                if (RectF.intersects(holeBounds, obstacle)) {
+                    positionIsInvalid = true; // Le trou est sur un obstacle
+                    break;
+                }
+            }
+            // Si la position est valide, on l'accepte et on sort de la boucle
+            if (!positionIsInvalid) {
+                holePosition.x = testX;
+                holePosition.y = testY;
+            }
+            attempts++;
+
+        } while (positionIsInvalid && attempts < maxAttempts);
+
+        // Si après 50 tentatives on n'a pas trouvé de place, on le place quand même;
+        if (attempts >= maxAttempts) {
+            holePosition.x = random.nextInt(getWidth() - (holeRadius * 2)) + holeRadius;
+            holePosition.y = random.nextInt(getHeight() - (holeRadius * 2)) + holeRadius;
+        }
+
+        // Redimensionner le sprite (cette ligne peut rester où elle était ou être mise ici)
+        scaledHoleSprite = Bitmap.createScaledBitmap(holeSprite, holeRadius * 2, holeRadius * 2, false);
     }
 
+
     private void generateObstacles() {
-        // Générer des obstacles aléatoires
-        float left = random.nextInt(getWidth() - random.nextInt(150));
-        float top = random.nextInt(getHeight() - random.nextInt(150));
-        float right = left + random.nextInt(150);
-        float bottom = top + random.nextInt(150);
-        obstacles.add(new RectF(left, top, right, bottom));
+        if (getWidth() <= 0 || getHeight() <= 0) {
+            return;
+        }
+
+        boolean positionIsInvalid;
+        int maxAttempts = 50; // Sécurité pour éviter les boucles infinies
+        int attempts = 0;
+        RectF newObstacle = null;
+
+        do {
+            positionIsInvalid = false;
+            // Générer un nouvel obstacle potentiel
+            float left = random.nextInt(getWidth() - 150);
+            float top = random.nextInt(getHeight() - 150);
+            float right = left + 50 + random.nextInt(100);
+            float bottom = top + 50 + random.nextInt(100);
+            newObstacle = new RectF(left, top, right, bottom);
+
+            for (RectF existingObstacle : obstacles) {
+                if (RectF.intersects(newObstacle, existingObstacle)) {
+                    positionIsInvalid = true;
+                    break;
+                }
+            }
+
+            // Si toujours valide, on passe à la vérification suivante
+            if (!positionIsInvalid) {
+                // 2. Vérifier qu'il ne chevauche pas le trou actuel
+                RectF holeBounds = new RectF(holePosition.x - holeRadius, holePosition.y - holeRadius, holePosition.x + holeRadius, holePosition.y + holeRadius);
+                if (RectF.intersects(newObstacle, holeBounds)) {
+                    positionIsInvalid = true;
+                }
+            }
+
+            attempts++;
+
+        } while (positionIsInvalid && attempts < maxAttempts);
+
+        // Si une position valide a été trouvée, on ajoute l'obstacle
+        if (newObstacle != null && !positionIsInvalid) {
+            obstacles.add(newObstacle);
+        }
     }
 
     // Boucle de logique du jeu
@@ -173,7 +244,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
             int baseRadius = 40;
             int variation = 30;
             holeRadius = baseRadius + random.nextInt(variation);
-            generateNewHolePosition();
             if (gameEventListener != null) {
                 multiplicateur += 1;
                 switch (mode) {
@@ -187,7 +257,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
                         score = 100 * multiplicateur;
                         break;
                     case "endless":
-                        score = 100 * multiplicateur;
+                        score += endlessPoint;
+                        if (multiplicateur % 10 == 0) {
+                            endlessPoint += 100;
+                        }
                         gameEventListener.resetTimer();
                         break;
                 }
@@ -196,6 +269,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
             if (multiplicateur % 5 == 0) {
                 generateObstacles();
             }
+            generateNewHolePosition();
         }
     }
 
@@ -208,7 +282,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         if (canvas != null) {
             canvas.drawPaint(backgroundPaint);
             canvas.drawCircle(ballPosition.x, ballPosition.y, 30, ballPaint);
-            //.drawCircle(holePosition.x, holePosition.y, 50, holePaint);
+            //canvas.drawCircle(holePosition.x, holePosition.y, 50, holePaint);
             if (holeSprite != null) {
                 canvas.drawBitmap(scaledHoleSprite,
                         holePosition.x - holeRadius, // Coordonnée X du coin supérieur gauche
