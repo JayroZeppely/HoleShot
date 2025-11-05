@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -21,6 +22,8 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
     private TextView timeText;
     private TextView scoreText;
     private int score = 0;
+    private int lives = 3; //valeur initiale
+    private ImageView[] hearts;
 
     private String mode;
 
@@ -49,6 +52,12 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
         timeText.setText(String.valueOf(timer));
         scoreText = findViewById(R.id.textScore);
         scoreText.setText("Score : " + score);
+        hearts = new ImageView[]{
+                findViewById(R.id.life1),
+                findViewById(R.id.life2),
+                findViewById(R.id.life3)
+        };
+        setLives();
         gameView = findViewById(R.id.gameView);
         if (gameView != null) {
             gameView.setGameEventListener(this);
@@ -72,6 +81,8 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
     };
     @Override
     public void onGameOver() {
+        Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -84,5 +95,22 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
     public void resetTimer() {
         this.timer = 5;
         runOnUiThread(() -> timeText.setText(String.valueOf(timer)));
+    }
+
+    //Methodes pour gérer l'affichage des coeurs de vies
+    @Override
+    public void onLivesChanged(int lives) {
+        this.lives = lives;
+        runOnUiThread(this::setLives);
+    }
+
+    private void setLives() {
+        for (int i = 0; i < hearts.length; i++) {
+            if(i < lives){
+                hearts[i].setImageResource(R.drawable.red);
+            }else{
+                hearts[i].setImageResource(R.drawable.black);
+            }
+        }
     }
 }

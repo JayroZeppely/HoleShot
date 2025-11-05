@@ -49,6 +49,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     private List<RectF> obstacles = new ArrayList<>();
 
     private int score;
+    private int lives = 3;
+    private boolean invincibility = true;
+    private int coolDown = 1500; //Frames d'invincibilité pour ne pas perdre toutes les vies en restant collé a un obstacle
 
     private int endlessPoint = 100;
 
@@ -62,8 +65,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     public interface GameEventListener {
         void onGameOver();
         void onScoreChanged(int score);
-
         void resetTimer();
+        void onLivesChanged(int lives);
     }
 
     // Constructeur
@@ -101,6 +104,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         thread.start();
         if (accel != null) {
             sm.registerListener(this, accel, SensorManager.SENSOR_DELAY_GAME);
+        }
+
+        if(gameEventListener != null){
+            gameEventListener.onLivesChanged(lives);
         }
     }
 
@@ -224,10 +231,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         ballPosition.x += (int) (gravity[1] * speedFactor);
 
         //Gestion collisions
+
+        RectF ballRect = new RectF(
+                ballPosition.x - 30,
+                ballPosition.y - 30,
+                ballPosition.x + 30,
+                ballPosition.y + 30
+        );
+
         for (RectF obstacle : obstacles) {
-            if (RectF.intersects(obstacle, new RectF(ballPosition.x - 30, ballPosition.y - 30, ballPosition.x + 30, ballPosition.y))) {
+            if (RectF.intersects(obstacle, ballRect)) {
                 ballPosition.x = lastBallX;
                 ballPosition.y = lastBallY;
+                onObstacleHit();
                 break;
             }
         }
@@ -300,6 +316,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    public void onObstacleHit(){
+        if(!invincibility){
+            return;
+        }
+
+        invincibility = false;
+
+        gameHandler.postDelayed(() -> invincibility = true, coolDown); // reactiver les frames d'invincibilité
+
+        if(lives > 0) {
+            lives -= 1;
+            if (gameEventListener != null) {
+                gameEventListener.onLivesChanged(lives);
+            }
+        }if(lives == 0 && gameEventListener != null){
+            //gameEventListener.onLivesChanged(lives);
+            gameEventListener.onGameOver();
+        }
     }
 
     public void onSensorChanged(SensorEvent event){
