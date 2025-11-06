@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String KEY_GAMES_PLAYED = "total_games_played";
+    public static final String KEY_GAMES_PLAYED = "nb_parties";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +41,6 @@ public class MainActivity extends AppCompatActivity {
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Incrémenter le compteur UNIQUEMENT quand on lance une partie
-                int newGamesPlayed = gamesPlayed + 1;
-
-                // Sauvegarder la nouvelle valeur
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putInt(KEY_GAMES_PLAYED, newGamesPlayed);
-                editor.apply();
-
                 // Lancer la GameActivity
                 Intent intent = new Intent(MainActivity.this, ModeActivity.class);
                 startActivity(intent);
@@ -68,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Optionnel : Mettre à jour le compteur au cas où on revient sur le menu
-        // après avoir fini une partie.
         SharedPreferences sharedPref = getSharedPreferences("HoleShotPrefs", Context.MODE_PRIVATE);
         int gamesPlayed = sharedPref.getInt(KEY_GAMES_PLAYED, 0);
         TextView gamesPlayedLabel = findViewById(R.id.games_played_label);

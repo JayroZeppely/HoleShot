@@ -45,6 +45,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     private Sensor accel;
     private final float[] gravity = new float[3];
     private final float[] linear_acceleration = new float[3];
+    private Sensor light;
+    private float currentLight;
+
+    private final float SEUIL_LIGHT = 40.0f;
+    private boolean isDarkMode = false;
 
     private List<RectF> obstacles = new ArrayList<>();
 
@@ -67,6 +72,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         void onScoreChanged(int score);
         void resetTimer();
         void onLivesChanged(int lives);
+        void onLightChanged(boolean isLight);
     }
 
     // Constructeur
@@ -91,6 +97,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
         sm = (SensorManager) context.getSystemService(SENSOR_SERVICE);
         accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        light = sm.getDefaultSensor(Sensor.TYPE_LIGHT);
+
     }
 
     @Override
@@ -104,6 +112,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         thread.start();
         if (accel != null) {
             sm.registerListener(this, accel, SensorManager.SENSOR_DELAY_GAME);
+        }
+        if (light != null) {
+            sm.registerListener(this, light, SensorManager.SENSOR_DELAY_GAME);
         }
 
         if(gameEventListener != null){
@@ -171,7 +182,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
             holePosition.y = random.nextInt(getHeight() - (holeRadius * 2)) + holeRadius;
         }
 
-        // Redimensionner le sprite (cette ligne peut rester où elle était ou être mise ici)
+        // Redimensionner le sprite du trou
         scaledHoleSprite = Bitmap.createScaledBitmap(holeSprite, holeRadius * 2, holeRadius * 2, false);
     }
 
@@ -221,7 +232,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         }
     }
 
-    // Boucle de logique du jeu
     public void update() {
         int lastBallX = ballPosition.x;
         int lastBallY = ballPosition.y;
@@ -231,7 +241,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         ballPosition.x += (int) (gravity[1] * speedFactor);
 
         //Gestion collisions
-
         RectF ballRect = new RectF(
                 ballPosition.x - 30,
                 ballPosition.y - 30,
@@ -255,7 +264,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         if (ballPosition.x > getWidth() - ballRadius) ballPosition.x = getWidth() - ballRadius;
         if (ballPosition.y > getHeight() - ballRadius) ballPosition.y = getHeight() - ballRadius;
 
-        // --- Quand la balle entre dans le trou ---
+        // Quand la balle touche le trou
         if (Math.abs(ballPosition.x - holePosition.x) < holeRadius && Math.abs(ballPosition.y - holePosition.y) < holeRadius) {
             int baseRadius = 40;
             int variation = 30;
@@ -296,22 +305,30 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
-            canvas.drawPaint(backgroundPaint);
-            canvas.drawCircle(ballPosition.x, ballPosition.y, 30, ballPaint);
-            //canvas.drawCircle(holePosition.x, holePosition.y, 50, holePaint);
-            if (holeSprite != null) {
-                canvas.drawBitmap(scaledHoleSprite,
-                        holePosition.x - holeRadius, // Coordonnée X du coin supérieur gauche
-                        holePosition.y - holeRadius, // Coordonnée Y du coin supérieur gauche
-                        null); // Pas besoin de Paint pour un bitmap
+            // Définir les couleurs en fonction du mode
+            Paint currentBackgroundPaint =  currentLight < SEUIL_LIGHT ? holePaint : backgroundPaint;
+            Paint currentObstaclePaint =  currentLight < SEUIL_LIGHT ? new Paint() {{ setColor(Color.BLUE); }} : obstaclePaint;
+            Paint currentBallPaint = ballPaint;
+
+            canvas.drawPaint(currentBackgroundPaint);
+
+            // Gestion DarkMode
+            if ( currentLight < SEUIL_LIGHT) {
+                Paint lightHolePaint = new Paint();
+                lightHolePaint.setColor(Color.WHITE);
+                canvas.drawCircle(holePosition.x, holePosition.y, holeRadius, lightHolePaint);
+            } else {
+                canvas.drawBitmap(scaledHoleSprite, holePosition.x - holeRadius, holePosition.y - holeRadius, null);
             }
-            // --- FIN MODIFICATIONS ---
+
+            canvas.drawCircle(ballPosition.x, ballPosition.y, 30, currentBallPaint);
 
             for (RectF obstacle : obstacles) {
-                canvas.drawRect(obstacle, obstaclePaint);
+                canvas.drawRect(obstacle, currentObstaclePaint);
             }
         }
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -339,21 +356,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     }
 
     public void onSensorChanged(SensorEvent event){
-        // In this example, alpha is calculated as t / (t + dT),
-        // where t is the low-pass filter's time-constant and
-        // dT is the event delivery rate.
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            // In this example, alpha is calculated as t / (t + dT),
+            // where t is the low-pass filter's time-constant and
+            // dT is the event delivery rate.
 
-        final float alpha = 0.8f;
+            final float alpha = 0.8f;
 
-        // Isolate the force of gravity with the low-pass filter.
-        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+            // Isolate the force of gravity with the low-pass filter.
+            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+            gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 
-        // Remove the gravity contribution with the high-
-        linear_acceleration[0] = event.values[0] - gravity[0];
-        linear_acceleration[1] = event.values[1] - gravity[1];
-        linear_acceleration[2] = event.values[2] - gravity[2];
+            // Remove the gravity contribution with the high-
+            linear_acceleration[0] = event.values[0] - gravity[0];
+            linear_acceleration[1] = event.values[1] - gravity[1];
+            linear_acceleration[2] = event.values[2] - gravity[2];
+        }
+        if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+            currentLight = event.values[0];
+            boolean isDark = currentLight < SEUIL_LIGHT;
+            if (isDarkMode != isDark) {
+                isDarkMode = isDark;
+                gameEventListener.onLightChanged(isDark);
+            }
+        }
     }
 
     @Override

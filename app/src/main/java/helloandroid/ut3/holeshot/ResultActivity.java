@@ -1,6 +1,10 @@
 package helloandroid.ut3.holeshot;
 
+import static helloandroid.ut3.holeshot.MainActivity.KEY_GAMES_PLAYED;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -57,6 +61,17 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // Incrémenter le compteur UNIQUEMENT quand on lance une partie
+        SharedPreferences sharedPref = getSharedPreferences("HoleShotPrefs", Context.MODE_PRIVATE);
+
+        int gamesPlayed = sharedPref.getInt(KEY_GAMES_PLAYED, 0);
+
+        int newGamesPlayed = gamesPlayed + 1;
+        // Sauvegarder la nouvelle valeur
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(KEY_GAMES_PLAYED, newGamesPlayed);
+        editor.apply();
     }
 
 

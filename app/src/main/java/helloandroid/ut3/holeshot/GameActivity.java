@@ -1,9 +1,15 @@
 package helloandroid.ut3.holeshot;
 
+import static helloandroid.ut3.holeshot.MainActivity.KEY_GAMES_PLAYED;
 import static helloandroid.ut3.holeshot.ModeActivity.MODES;
 import static helloandroid.ut3.holeshot.ModeActivity.TIMER_DUREE;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,7 +22,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class GameActivity extends AppCompatActivity implements GameView.GameEventListener {
+public class GameActivity extends AppCompatActivity implements GameView.GameEventListener, SensorEventListener {
     int timer;
     private Handler gameHandler;
     private TextView timeText;
@@ -24,6 +30,8 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
     private int score = 0;
     private int lives = 3; //valeur initiale
     private ImageView[] hearts;
+
+    public boolean isDark = false;
 
     private String mode;
 
@@ -74,6 +82,7 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
                 timeText.setText(String.valueOf(timer));
                 gameHandler.postDelayed(this, 1000);
             } else {
+                gameHandler.removeCallbacks(this);
                 Intent intent = new Intent(GameActivity.this, ResultActivity.class);
                 startActivity(intent);
             }
@@ -81,6 +90,7 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
     };
     @Override
     public void onGameOver() {
+        gameHandler.removeCallbacks(setTimer);
         Intent intent = new Intent(GameActivity.this, ResultActivity.class);
         startActivity(intent);
     }
@@ -104,13 +114,39 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
         runOnUiThread(this::setLives);
     }
 
+    @Override
+    public void onLightChanged(boolean isDark) {
+        this.isDark = isDark;
+        setLives();
+    }
+
     private void setLives() {
         for (int i = 0; i < hearts.length; i++) {
             if(i < lives){
-                hearts[i].setImageResource(R.drawable.red);
+                if(!isDark) {
+                    hearts[i].setImageResource(R.drawable.red);
+                } else {
+                    hearts[i].setImageResource(R.drawable.blue);
+                }
             }else{
                 hearts[i].setImageResource(R.drawable.black);
             }
         }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        gameHandler.removeCallbacks(setTimer);
     }
 }
