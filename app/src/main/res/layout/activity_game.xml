@@ -1,69 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".GameActivity">
 
+    <!-- Barre d'informations en haut -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:background="#285F9E"
+        android:gravity="center_vertical"
+        android:elevation="4dp">
 
+        <!-- Score -->
+        <TextView
+            android:id="@+id/textScore"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="5dp"
+            android:text="Score : 0"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            android:textColor="@android:color/white" />
+
+        <!-- Timer -->
+        <TextView
+            android:id="@+id/textTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="60"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white" />
+
+        <!-- Vies -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="42dp"
+            android:id="@+id/livesLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end|center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textScore"
-                android:layout_width="48dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Score : 42"
-                android:textAlignment="center" />
+            <ImageView
+                android:id="@+id/life1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/red"
+                android:layout_marginStart="4dp"/>
 
-            <TextView
-                android:id="@+id/textTimer"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Timer"
-                android:textAlignment="center" />
+            <ImageView
+                android:id="@+id/life2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/red"
+                android:layout_marginStart="4dp"/>
 
-            <LinearLayout
-                android:id="@+id/livesLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+            <ImageView
+                android:id="@+id/life3"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/red"
+                android:layout_marginStart="4dp"/>
 
-                <ImageView
-                    android:id="@+id/life1"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/red"/>
-
-                <ImageView
-                    android:id="@+id/life2"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/red" />
-
-                <ImageView
-                    android:id="@+id/life3"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/red" />
-
-            </LinearLayout>
-            
         </LinearLayout>
 
-        <helloandroid.ut3.holeshot.GameView
-            android:id="@+id/gameView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <helloandroid.ut3.holeshot.GameView
+        android:id="@+id/gameView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

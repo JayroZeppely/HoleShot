@@ -67,6 +67,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
     private int multiplicateur = 0;
 
+    private int maxSizeEndless = 150;
+
     private String mode;
 
     public interface GameEventListener {
@@ -194,6 +196,32 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
             return;
         }
 
+        int minSize;
+        int maxSize;
+
+        // Les obstacles seronts plus ou moins gros en fonction du mode de jeu
+        switch (mode) {
+            case "30s":
+                minSize = 80;
+                maxSize = 250;
+                break;
+            case "45s":
+                minSize = 60;
+                maxSize = 200;
+                break;
+            case "60s":
+                minSize = 50;
+                maxSize = 150;
+                break;
+            case "endless":
+                minSize = 50;
+                maxSize = maxSizeEndless;
+                break;
+            default:
+                minSize = 50;
+                maxSize = 150;
+        }
+
         boolean positionIsInvalid;
         int maxAttempts = 50; // Sécurité pour éviter les boucles infinies
         int attempts = 0;
@@ -201,11 +229,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
         do {
             positionIsInvalid = false;
-            // Générer un nouvel obstacle potentiel
-            float left = random.nextInt(getWidth() - 150);
-            float top = random.nextInt(getHeight() - 150);
-            float right = left + 50 + random.nextInt(100);
-            float bottom = top + 50 + random.nextInt(100);
+
+            float width = minSize + random.nextInt(maxSize - minSize);
+            float height = minSize + random.nextInt(maxSize - minSize);
+            float left = random.nextInt(getWidth() - (int)width);
+            float top = random.nextInt(getHeight() - (int)height);
+            float right = left + width;
+            float bottom = top + height;
+
             newObstacle = new RectF(left, top, right, bottom);
 
             for (RectF existingObstacle : obstacles) {
@@ -279,10 +310,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
                 multiplicateur += 1;
                 switch (mode) {
                     case "30s":
-                        score = 500 * multiplicateur;
+                        score = 300 * multiplicateur;
                         break;
                     case "45s":
-                        score = 250 * multiplicateur;
+                        score = 200 * multiplicateur;
                         break;
                     case "60s":
                         score = 100 * multiplicateur;
@@ -290,16 +321,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
                     case "endless":
                         score += endlessPoint;
                         if (multiplicateur % 10 == 0) {
-                            endlessPoint += 100;
+                            endlessPoint += 50;
                         }
                         gameEventListener.resetTimer();
                         break;
                 }
                 gameEventListener.onScoreChanged(score);
             }
-            if (multiplicateur % 5 == 0) {
-                generateObstacles();
-            }
+            ajouterObstacle();
             generateNewHolePosition();
         }
     }
@@ -312,7 +341,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         super.draw(canvas);
         if (canvas != null) {
             // Définir les couleurs en fonction du mode
-            Paint currentBackgroundPaint =  currentLight < SEUIL_LIGHT ? holePaint : backgroundPaint;
+            Paint currentBackgroundPaint =  currentLight < SEUIL_LIGHT ? new Paint() {{ setColor(Color.rgb(40,40,40)); }} : backgroundPaint;
             Paint currentObstaclePaint =  currentLight < SEUIL_LIGHT ? new Paint() {{ setColor(Color.BLUE); }} : obstaclePaint;
             Paint currentBallPaint = ballPaint;
 
@@ -320,14 +349,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
             // Gestion DarkMode
             if ( currentLight < SEUIL_LIGHT) {
-                Paint lightHolePaint = new Paint();
-                lightHolePaint.setColor(Color.WHITE);
-                canvas.drawCircle(holePosition.x, holePosition.y, holeRadius, lightHolePaint);
+                Paint DarkHolePaint = new Paint();
+                DarkHolePaint.setColor(Color.WHITE);
+                canvas.drawCircle(holePosition.x, holePosition.y, holeRadius, DarkHolePaint);
+                canvas.drawCircle(ballPosition.x, ballPosition.y, 30, new Paint() {{ setColor(Color.rgb(170,170,0)); }});
             } else {
                 canvas.drawBitmap(scaledHoleSprite, holePosition.x - holeRadius, holePosition.y - holeRadius, null);
+                canvas.drawCircle(ballPosition.x, ballPosition.y, 30, currentBallPaint);
             }
 
-            canvas.drawCircle(ballPosition.x, ballPosition.y, 30, currentBallPaint);
+
 
             for (RectF obstacle : obstacles) {
                 canvas.drawRect(obstacle, currentObstaclePaint);
@@ -414,5 +445,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
     public void setMode(String mode) {
         this.mode = mode;
+    }
+
+    public void ajouterObstacle() {
+        switch (mode) {
+            case "30s":
+                if (multiplicateur % 3 == 0) {
+                    generateObstacles();
+                }
+                break;
+            case "45s":
+                if (multiplicateur % 4 == 0) {
+                    generateObstacles();
+                }
+                break;
+            case "60s":
+                if (multiplicateur % 5 == 0) {
+                    generateObstacles();
+                }
+                break;
+            case "endless":
+                if (multiplicateur % 5 == 0) {
+                    generateObstacles();
+                    maxSizeEndless += 50;
+                }
+                break;
+        }
     }
 }
