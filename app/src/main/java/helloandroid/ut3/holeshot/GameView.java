@@ -235,6 +235,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     }
 
     public void update() {
+        RectF hittedObstacle = null; //Dour la destruction de l'obstacle touché
         int lastBallX = ballPosition.x;
         int lastBallY = ballPosition.y;
 
@@ -252,6 +253,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
 
         for (RectF obstacle : obstacles) {
             if (RectF.intersects(obstacle, ballRect)) {
+                hittedObstacle = obstacle;
+                obstacles.remove(hittedObstacle);
+
                 ballPosition.x = lastBallX;
                 ballPosition.y = lastBallY;
                 onObstacleHit();
