@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -20,8 +23,11 @@ import androidx.core.view.WindowInsetsCompat;
 public class ResultActivity extends AppCompatActivity {
 
     TextView textFinish;
+    TextView textScore;
     Button btnQuit;
     Button btnRestart;
+    EditText pseudoInput;
+    int score;
 
 
     @Override
@@ -35,12 +41,35 @@ public class ResultActivity extends AppCompatActivity {
             return insets;
         });
         textFinish = findViewById(R.id.text_finish);
+        textScore = findViewById(R.id.text_score);
         btnQuit = findViewById(R.id.btn_quit);
         btnRestart = findViewById(R.id.btn_restart);
+        pseudoInput = findViewById(R.id.pseudo_input);
+        score = getIntent().getIntExtra("score", 0);
+
+        textScore.setText("Score : "+ score);
+
+        pseudoInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean isPseudoEmpty = s.toString().trim().isEmpty();
+                btnQuit.setEnabled(!isPseudoEmpty);
+                btnRestart.setEnabled(!isPseudoEmpty);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         btnQuit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                saveScore();
                 Intent intent = new Intent(ResultActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -49,6 +78,7 @@ public class ResultActivity extends AppCompatActivity {
         btnRestart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                saveScore();
                 Intent intent = new Intent(ResultActivity.this, ModeActivity.class);
                 startActivity(intent);
             }
@@ -57,6 +87,7 @@ public class ResultActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                saveScore();
                 Intent intent = new Intent(ResultActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -74,5 +105,20 @@ public class ResultActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    //Envoi du score à la bdd
+    private void saveScore(){
+        String pseudo = pseudoInput.getText().toString().trim();
+        if(pseudo.isEmpty()){
+            return;
+        }
 
+        new Thread(() -> {
+            try {
+                DBConnexion.insertScore(pseudo, score);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }).start();
+    }
 }

@@ -84,6 +84,7 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
             } else {
                 gameHandler.removeCallbacks(this);
                 Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+                intent.putExtra("score", score); //pour envoyer le score à la nouvelle activité
                 startActivity(intent);
             }
         }
@@ -92,6 +93,7 @@ public class GameActivity extends AppCompatActivity implements GameView.GameEven
     public void onGameOver() {
         gameHandler.removeCallbacks(setTimer);
         Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+        intent.putExtra("score", score); //pour envoyer le score à la nouvelle activité
         startActivity(intent);
     }
 

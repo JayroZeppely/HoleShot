@@ -18,19 +18,47 @@
         android:textSize="30sp"
         android:text="Partie terminée"
         android:textAlignment="center"
-
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <TextView
+        android:id="@+id/text_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textColor="#FF5722"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_finish" />
+
+    <EditText
+        android:id="@+id/pseudo_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="76dp"
+        android:ems="10"
+        android:hint="Entrez votre pseudo"
+        android:inputType="text"
+        android:maxLength="15"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_finish" />
+
     <Button
         android:id="@+id/btn_quit"
         android:layout_width="160dp"
         android:layout_height="49dp"
-        android:layout_marginTop="232dp"
+        android:layout_marginTop="300dp"
         android:layout_marginEnd="108dp"
+        android:enabled="false"
         android:text="Quitter"
         app:layout_constraintEnd_toStartOf="@+id/btn_restart"
         app:layout_constraintHorizontal_bias="0.5"
@@ -41,7 +69,8 @@
         android:id="@+id/btn_restart"
         android:layout_width="160dp"
         android:layout_height="49dp"
-        android:layout_marginTop="232dp"
+        android:layout_marginTop="300dp"
+        android:enabled="false"
         android:text="Recommencer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
