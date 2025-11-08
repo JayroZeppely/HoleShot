@@ -320,7 +320,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
                         break;
                     case "endless":
                         score += endlessPoint;
-                        if (multiplicateur % 10 == 0) {
+                        if (multiplicateur % 10 == 0 && multiplicateur <= 100) {
                             endlessPoint += 50;
                         }
                         gameEventListener.resetTimer();
@@ -465,9 +465,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
                 }
                 break;
             case "endless":
-                if (multiplicateur % 5 == 0) {
+                if (multiplicateur % 5 == 0 && multiplicateur <= 100) {
                     generateObstacles();
-                    maxSizeEndless += 50;
+                    maxSizeEndless += 20;
                 }
                 break;
         }
