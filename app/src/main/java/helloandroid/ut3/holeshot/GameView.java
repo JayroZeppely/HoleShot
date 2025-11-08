@@ -57,6 +57,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
     private int lives = 3;
     private boolean invincibility = true;
     private int coolDown = 1500; //Frames d'invincibilité pour ne pas perdre toutes les vies en restant collé a un obstacle
+    private boolean visible = true; //principalement en lien avec la frame d'invincibilité, pourrait servir a autre chose
+    private final Handler blinkHandler = new Handler();
 
     private int endlessPoint = 100;
 
@@ -341,6 +343,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         }
 
         invincibility = false;
+        blinking();
 
         gameHandler.postDelayed(() -> invincibility = true, coolDown); // reactiver les frames d'invincibilité
 
@@ -354,6 +357,25 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
             gameEventListener.onGameOver();
         }
     }
+
+    //Clignotement pendant la frame d'invincibilité
+    private void blinking(){
+        blinkHandler.post(blinkRunnable);
+    }
+
+    private Runnable blinkRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(invincibility){
+                ballPaint.setAlpha(255);
+                visible = true;
+                return;
+            }
+            ballPaint.setAlpha(visible ? 255 : 80);
+            blinkHandler.postDelayed(this, 100);
+            visible = !visible;
+        }
+    };
 
     public void onSensorChanged(SensorEvent event){
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
