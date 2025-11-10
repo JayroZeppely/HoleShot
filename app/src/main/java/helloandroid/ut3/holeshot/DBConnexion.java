@@ -1,10 +1,15 @@
 package helloandroid.ut3.holeshot;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBConnexion {
     private static final String URL = "https://rpqjhttwofqbvfigiyok.supabase.co";
@@ -34,4 +39,39 @@ public class DBConnexion {
     }
 
     //Récupération du top 10
+    public static List<String> getTop10() throws Exception {
+        HttpURLConnection connexion = (HttpURLConnection) new URL(URL + "/rest/v1/Score?select=*&order=score.desc&limit=10").openConnection();
+        connexion.setRequestMethod("GET");
+        connexion.setRequestProperty("apikey", KEY);
+        connexion.setRequestProperty("Authorization", "Bearer " + KEY);
+
+        if (connexion.getResponseCode() != 200) {
+            throw new Exception("Erreur lors de la récupération des scores");
+        }
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connexion.getInputStream()));
+        StringBuilder builder = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            builder.append(line);
+        }
+
+        List<String> scores = new ArrayList<>();
+        JSONArray array = new JSONArray(builder.toString()); //On recupere les scores en String
+
+        //On va créer la liste avec les pseudos et les scores
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject object = array.getJSONObject(i);
+
+            String pseudo = object.getString("pseudo");
+            int score = object.getInt("score");
+
+            scores.add(pseudo + "   " + score);
+        }
+
+        reader.close();
+        connexion.disconnect();
+        return scores;
+    }
+
 }
