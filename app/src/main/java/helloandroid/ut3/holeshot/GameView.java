@@ -86,7 +86,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
 
-        ballPaint.setColor(Color.rgb(120, 100, 140));
+        ballPaint.setColor(Color.rgb(140, 100, 140));
         holePaint.setColor(Color.BLACK);
         backgroundPaint.setColor(Color.WHITE);
         obstaclePaint.setColor(Color.RED);
@@ -344,7 +344,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
             Paint currentBackgroundPaint =  currentLight < SEUIL_LIGHT ? new Paint() {{ setColor(Color.rgb(40,40,40)); }} : backgroundPaint;
             Paint currentObstaclePaint =  currentLight < SEUIL_LIGHT ? new Paint() {{ setColor(Color.BLUE); }} : obstaclePaint;
             Paint currentBallPaint = ballPaint;
-
             canvas.drawPaint(currentBackgroundPaint);
 
             // Gestion DarkMode
@@ -352,14 +351,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Sen
                 Paint DarkHolePaint = new Paint();
                 DarkHolePaint.setColor(Color.WHITE);
                 canvas.drawCircle(holePosition.x, holePosition.y, holeRadius, DarkHolePaint);
-                canvas.drawCircle(ballPosition.x, ballPosition.y, 30, new Paint() {{ setColor(Color.rgb(170,170,0)); }});
             } else {
                 canvas.drawBitmap(scaledHoleSprite, holePosition.x - holeRadius, holePosition.y - holeRadius, null);
-                canvas.drawCircle(ballPosition.x, ballPosition.y, 30, currentBallPaint);
             }
-
-
-
+            canvas.drawCircle(ballPosition.x, ballPosition.y, 30, currentBallPaint);
             for (RectF obstacle : obstacles) {
                 canvas.drawRect(obstacle, currentObstaclePaint);
             }
