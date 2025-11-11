@@ -14,7 +14,6 @@
         <activity
             android:name=".HistoriqueActivity"
             android:exported="false"
-            android:label="@string/title_activity_historique"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.HoleShot" />
         <activity
